@@ -94,6 +94,10 @@ service node['rabbitmq']['service_name'] do
   not_if { platform?('smartos') }
 end
 
+cluster_disk_nodes = search("node", "tag:#{node['rabbitmq']['cluster_tag']} AND chef_environment:#{node.chef_environment}")
+
+Chef::Log.info("cluster_disk_nodes found: #{cluster_disk_nodes}")
+
 template "#{node['rabbitmq']['config_root']}/rabbitmq-env.conf" do
   source 'rabbitmq-env.conf.erb'
   owner 'root'
