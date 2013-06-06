@@ -25,6 +25,7 @@ default['rabbitmq']['default_pass'] = 'guest'
 
 #clustering
 default['rabbitmq']['cluster'] = true
+default['rabbitmq']['search'] = true
 default['rabbitmq']['cluster_name'] = "rabbitmq"
 default['rabbitmq']['cluster_role'] = default['rabbitmq']['cluster_name'] + "_cluster"
 default['rabbitmq']['cluster_disk_nodes'] = []

@@ -17,13 +17,13 @@ Vagrant.configure("2") do |config|
     # via the IP. Host-only networks can talk to the host machine as well as
     # any other machines on the same network, but cannot be accessed (through this
     # network interface) by any external networks.
-    mq1.vm.network :private_network, ip: "33.33.33.11"
+    # mq1.vm.network :private_network, ip: "33.33.33.11"
 
     # Create a public network, which generally matched to bridged network.
     # Bridged networks make the machine appear as another physical device on
     # your network.
 
-    # config.vm.network :public_network
+    mq1.vm.network :public_network
 
     # Create a forwarded port mapping which allows access to a specific port
     # within the machine from a port on the host machine. In the example below,
@@ -96,13 +96,13 @@ Vagrant.configure("2") do |config|
       # via the IP. Host-only networks can talk to the host machine as well as
       # any other machines on the same network, but cannot be accessed (through this
       # network interface) by any external networks.
-      mq2.vm.network :private_network, ip: "33.33.33.12"
+      # mq2.vm.network :private_network, ip: "33.33.33.12"
 
       # Create a public network, which generally matched to bridged network.
       # Bridged networks make the machine appear as another physical device on
       # your network.
 
-      # config.vm.network :public_network
+      mq2.vm.network :public_network
 
       # Create a forwarded port mapping which allows access to a specific port
       # within the machine from a port on the host machine. In the example below,
