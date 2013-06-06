@@ -94,9 +94,16 @@ service node['rabbitmq']['service_name'] do
   not_if { platform?('smartos') }
 end
 
-cluster_disk_nodes = search("node", "tag:#{node['rabbitmq']['cluster_tag']} AND chef_environment:#{node.chef_environment}")
+cluster_members = search("node", "role:#{node['rabbitmq']['cluster_role']} AND chef_environment:#{node.chef_environment}")
 
-Chef::Log.info("cluster_disk_nodes found: #{cluster_disk_nodes}")
+cluster_members << node if node.run_list.roles.include?(node['rabbitmq']['cluster_role'])
+
+cluster_members.each do |member|
+  Chef::Log.info("Hostname: #{member['hostname']}, IP: #{member['ipaddress']}")
+  node.default['rabbitmq']['cluster_disk_nodes'] << ('rabbit@' + member['ipaddress']) unless node.default['rabbitmq']['cluster_disk_nodes'].include?('rabbit@' + member['ipaddress'])
+end
+
+Chef::Log.info("cluster_disk_nodes found: #{node['rabbitmq']['cluster_disk_nodes']}")
 
 template "#{node['rabbitmq']['config_root']}/rabbitmq-env.conf" do
   source 'rabbitmq-env.conf.erb'
