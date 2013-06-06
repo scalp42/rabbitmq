@@ -95,10 +95,18 @@ service node['rabbitmq']['service_name'] do
 end
 
 if node['rabbitmq']['cluster'] && node['rabbitmq']['search']
-  cluster_members = search("node", "role:#{node['rabbitmq']['cluster_role']} AND chef_environment:#{node.chef_environment}")
-  cluster_members << node if node.run_list.roles.include?(node['rabbitmq']['cluster_role'])
-  cluster_members.each do |member|
-    node.default['rabbitmq']['cluster_disk_nodes'] << ('rabbit@' + member['ipaddress']) unless node.default['rabbitmq']['cluster_disk_nodes'].include?('rabbit@' + member['ipaddress'])
+  if Chef::Config[:solo]
+   Chef::Log.warn("This recipe uses search. Chef Solo does not support search. Falling back to manual attributes.")
+  else
+    cluster_members = search("node", "role:#{node['rabbitmq']['cluster_role']} AND chef_environment:#{node.chef_environment}")
+    cluster_members << node if node.run_list.roles.include?(node['rabbitmq']['cluster_role'])
+    cluster_members.each do |member|
+      hostsfile_entry member['ipaddress'] do
+        hostname  member['hostname']
+        action    :create
+      end
+      node.default['rabbitmq']['cluster_disk_nodes'] << ('rabbit@' + member['hostname']) unless node.default['rabbitmq']['cluster_disk_nodes'].include?('rabbit@' + member['hostname'])
+    end
   end
 end
 
@@ -117,7 +125,7 @@ template "#{node['rabbitmq']['config_root']}/rabbitmq.config" do
   mode 00644
   if node['rabbitmq']['cluster'] && node['rabbitmq']['search']
     variables(
-      :nodes => cluster_members.map { |n| n[:ipaddress]  }.uniq
+      :nodes => cluster_members.map { |n| n[:hostname]  }.uniq
       )
   end
   notifies :restart, "service[#{node['rabbitmq']['service_name']}]"
