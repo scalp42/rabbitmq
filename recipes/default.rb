@@ -64,7 +64,7 @@ when 'debian'
     service node['rabbitmq']['service_name'] do
       provider Chef::Provider::Service::Upstart
       action [ :enable, :start ]
-      #restart_command "stop #{node['rabbitmq']['service_name']} && start #{node['rabbitmq']['service_name']}"
+      restart_command "stop #{node['rabbitmq']['service_name']} && start #{node['rabbitmq']['service_name']}"
     end
   end
 
@@ -76,9 +76,9 @@ when 'debian'
   if node['rabbitmq']['job_control'] == 'initd'
     service node['rabbitmq']['service_name'] do
       start_command 'setsid /etc/init.d/rabbitmq-server start'
-      stop_command 'setsid /etc/init.d/rabbitmq-server stop'
+      stop_command 'setsid /etc/init.d/rabbitmq-server stop ; sleep 1 ; pkill -U rabbitmq'
       restart_command 'setsid /etc/init.d/rabbitmq-server restart'
-      status_command 'setsid /etc/init.d/rabbitmq-server status'
+      status_command 'pgrep -u rabbitmq'
       supports :status => true, :restart => true
       action [ :enable, :start ]
     end
